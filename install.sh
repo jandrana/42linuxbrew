@@ -1,27 +1,34 @@
+#!/bin/bash
 
-      #########.
-     ########",#:
-   #########',##".
-  ##'##'## .##',##.
-   ## ## ## # ##",#.
-    ## ## ## ## ##'
-     ## ## ## :##
-      ## ## ##."
+# Exit immediately on errors
+set -e
 
-# Delete and reinstall Homebrew from Github repo
-rm -rf $HOME/.brew
-git clone --depth=1 https://github.com/Homebrew/brew $HOME/.brew
+# Variables
+BREW_REPO="https://github.com/Homebrew/brew"
+BREW_DIR="/sgoinfre/students/$USER/.brew"  
+BREW_CONFIG="/sgoinfre/students/$USER/.brewconfig.zsh" 
+ZSHRC="$HOME/.zshrc"
 
-# Create .brewconfig script in home directory 
-cat > $HOME/.brewconfig.zsh <<EOL
-# HOMEBREW CONFIG
+# Remove any existing Homebrew installation in the sgoinfre directory
+echo "Removing any existing Homebrew installation..."
+rm -rf "$BREW_DIR"
+rm -rf "$HOME/.brew"
+
+# Clone Homebrew repository to sgoinfre
+echo "Cloning Homebrew repository..."
+git clone --depth=1 "$BREW_REPO" "$BREW_DIR"
+
+# Create .brewconfig.zsh script in sgoinfre directory
+echo "Creating Homebrew configuration script..."
+cat > "$BREW_CONFIG" <<EOL
+# HOMEBREW CONFIGURATION
 
 # Add brew to path
-export PATH=\$HOME/.brew/bin:\$PATH
+export PATH=/sgoinfre/students/\$USER/.brew/bin:\$PATH
 
-# Set Homebrew temporary folders
-export HOMEBREW_CACHE=/tmp/\$USER/Homebrew/Caches
-export HOMEBREW_TEMP=/tmp/\$USER/Homebrew/Temp
+# Set Homebrew temporary folders in sgoinfre
+export HOMEBREW_CACHE=/sgoinfre/students/\$USER/Homebrew/Caches
+export HOMEBREW_TEMP=/sgoinfre/students/\$USER/Homebrew/Temp
 
 mkdir -p \$HOMEBREW_CACHE
 mkdir -p \$HOMEBREW_TEMP
@@ -43,18 +50,23 @@ if df --output=fstype "\$HOME" | grep -E "autofs|nfs" >/dev/null; then
 fi
 EOL
 
-# Add .brewconfig sourcing in your .zshrc if not already present
-if ! grep -q "# Load Homebrew config script" $HOME/.zshrc
-then
-cat >> $HOME/.zshrc <<EOL
+# Add sourcing of .brewconfig.zsh to .zshrc if not already present
+if ! grep -q "# Load Homebrew config script" "$ZSHRC"; then
+  echo "Adding Homebrew config script to $ZSHRC..."
+  cat >> "$ZSHRC" <<EOL
 
 # Load Homebrew config script
-source \$HOME/.brewconfig.zsh
+source /sgoinfre/students/\$USER/.brewconfig.zsh
 EOL
 fi
 
-source $HOME/.brewconfig.zsh
+# Source the config and rehash
+echo "Loading Homebrew configuration..."
+source "$BREW_CONFIG"
 rehash
+
+# Update Homebrew
+echo "Updating Homebrew..."
 brew update
 
-echo "\nPlease open a new shell to finish installation"
+echo -e "\nHomebrew installation complete. Please open a new shell to finalize the setup."
