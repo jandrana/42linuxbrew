@@ -63,7 +63,7 @@ fi
 # Source the config and rehash
 echo "Loading Homebrew configuration..."
 source "$BREW_CONFIG"
-rehash
+hash -r
 
 # Update Homebrew
 echo "Updating Homebrew..."
